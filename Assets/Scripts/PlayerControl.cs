@@ -7,13 +7,23 @@ public class PlayerControl : MonoBehaviour {
 	private bool jump = false;
 	private bool lash = false;
 
-	public float maxSpeed = 5f;
-	public float jumpForce = 5f;
-	//public Transform groundCheck;
+	[SerializeField]
+	private float maxSpeed = 5f;
+	[SerializeField]
+	private float jumpForce;
 
-	private bool grounded = false;
 	private Animator myAnimator;
 	private Rigidbody2D myRigidbody;
+
+	[SerializeField]
+	private Transform[] groundPoints;
+	[SerializeField]
+	private float groundRadius;
+	[SerializeField]
+	private LayerMask whatIsGround;
+	private bool isGrounded;
+	[SerializeField]
+	private bool airControl=false;
 
 	void Start () {
 		myAnimator = GetComponent<Animator> ();
@@ -26,6 +36,7 @@ public class PlayerControl : MonoBehaviour {
 
 	void FixedUpdate(){
 		float horizontal = Input.GetAxis ("Horizontal");
+		isGrounded = IsGrounded ();
 		HandleMovement (horizontal);
 		Flip (horizontal);
 		HandleAttacks ();
@@ -33,7 +44,7 @@ public class PlayerControl : MonoBehaviour {
 	}
 
 	void HandleInput(){
-		if (Input.GetButtonDown("Jump")){// && grounded){
+		if (Input.GetKeyDown(KeyCode.Space)){
 			jump = true;
 		}
 		if (Input.GetButton ("Fire1")) {
@@ -42,12 +53,13 @@ public class PlayerControl : MonoBehaviour {
 	}
 
 	void HandleMovement(float horizontal){
-		if (!myAnimator.GetCurrentAnimatorStateInfo (0).IsTag ("Lash") && !jump ) {
+		if (!myAnimator.GetCurrentAnimatorStateInfo (0).IsTag ("Lash") && (isGrounded || airControl)) {
 			myAnimator.SetFloat ("speed", Mathf.Abs (horizontal));
 			myRigidbody.velocity = new Vector2 (horizontal * maxSpeed, myRigidbody.velocity.y);
-
-		} else if (jump) {
-			Jump (horizontal);
+		} 
+		if (isGrounded && jump) {
+			isGrounded = false;
+			Jump ();
 		}
 	}
 
@@ -72,15 +84,27 @@ public class PlayerControl : MonoBehaviour {
 		myRigidbody.velocity = Vector2.zero;
 	}
 
-	void Jump(float horizontal){
-		myAnimator.SetTrigger ("jump");
-		//myRigidbody.AddForce (new Vector2(myRigidbody.position.x,jumpForce));
-		myRigidbody.velocity = new Vector2 (myRigidbody.velocity.x, horizontal * maxSpeed);
-		myRigidbody.velocity = Vector2.zero;
+	void Jump(){
+		//myAnimator.SetTrigger ("jump");
+		myRigidbody.AddForce (new Vector2(0f,jumpForce));
 	}
 
 	void ResetValues(){
 		lash = false;
 		jump = false;
+	}
+
+	private bool IsGrounded(){
+		if (myRigidbody.velocity.y <= 0) {
+			foreach (Transform point in groundPoints) {
+				Collider2D[] colliders = Physics2D.OverlapCircleAll (point.position, groundRadius, whatIsGround);
+				for (int i = 0; i < colliders.Length; i++) {
+					if(colliders[i].gameObject != gameObject) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 }
