@@ -6,32 +6,46 @@ public class ZombieController : MonoBehaviour {
 	Rigidbody2D myRigidbody;
 	Animator myAnimator;
 	[SerializeField]
-	private float maxSpeed=0.1f;
-	private float horizontal=-1f;
-
-	private bool facingRight = false;
+	private float maxSpeed = -0.1f;
+	[SerializeField]
+	private bool facingLeft = true;
+	[SerializeField]
+	private float bordeIzquierdo;
+	[SerializeField]
+	private float bordeDerecho;
+	private bool isBorder = false;
 
 	void Start(){
-
 		myRigidbody = GetComponent <Rigidbody2D> ();
-		myAnimator = GetComponent <Animator> ();
+	}
+
+	void Update(){
+		if (( isBorder && !facingLeft) || (isBorder && facingLeft)) {
+			Flip ();
+		}
 	}
 
 	void FixedUpdate(){
 		HandleMovement ();
-		Flip (horizontal);
+
 	}
 
 	void HandleMovement(){
-		myRigidbody.velocity = new Vector2 (horizontal * maxSpeed, myRigidbody.velocity.y);
+		myRigidbody.velocity = new Vector2 (maxSpeed, myRigidbody.velocity.y);
 	}
 
-	void Flip(float horizontal){
-		if (horizontal > 0 && !facingRight || horizontal < 0 && facingRight) {
-			facingRight = !facingRight;
-			Vector3 myScale = transform.localScale;
-			myScale.x *= -1;
-			transform.localScale = myScale;
+	void Flip(){
+		facingLeft = !facingLeft;
+		Vector3 myScale = transform.localScale;
+		myScale.x *= -1;
+		transform.localScale = myScale;
+		maxSpeed *= -1;
+		isBorder = false;
+	}
+
+	void OnTriggerExit2D(Collider2D other){
+		if (other.tag == "Border") {
+			isBorder = true;
 		}
 	}
 }
