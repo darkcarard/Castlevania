@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class PlayerControl : MonoBehaviour {
@@ -25,9 +26,19 @@ public class PlayerControl : MonoBehaviour {
 	[SerializeField]
 	private bool airControl=false;
 
+	private int maxLife = 20;
+	private int life = 5;
+	private int maxAmmo = 10;
+	private int ammo = 0;
+	[SerializeField]
+	private Text lifeText;
+	[SerializeField]
+	private Text ammoText;
+
 	void Start () {
 		myAnimator = GetComponent<Animator> ();
 		myRigidbody = GetComponent<Rigidbody2D> ();
+		SetPuntaje ();
 	}
 
 	void Update () {
@@ -106,5 +117,24 @@ public class PlayerControl : MonoBehaviour {
 			}
 		}
 		return false;
+	}
+
+	void OnTriggerEnter2D(Collider2D other){
+		if(other.tag == "Bow"){
+			if(ammo <= maxAmmo){
+				ammo++;
+			}
+		}else if(other.tag == "Hearth"){
+			if(life <= maxLife){
+				life++;
+			}
+		}
+		Destroy (other.gameObject);
+		SetPuntaje ();
+	}
+
+	void SetPuntaje(){
+		lifeText.text = "Vida: " + life.ToString ();
+		ammoText.text = "Munición: " + ammo.ToString ();
 	}
 }
