@@ -27,7 +27,6 @@ public class ZombieController : MonoBehaviour {
 
 	void FixedUpdate(){
 		HandleMovement ();
-
 	}
 
 	void HandleMovement(){
