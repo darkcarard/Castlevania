@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class WhipController : MonoBehaviour {
+public class WhipControl : MonoBehaviour {
 
 	public GameObject explosion;
 

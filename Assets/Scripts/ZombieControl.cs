@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ZombieController : MonoBehaviour {
+public class ZombieControl : MonoBehaviour {
 
 	private Rigidbody2D myRigidbody;
 	private Animator myAnimator;

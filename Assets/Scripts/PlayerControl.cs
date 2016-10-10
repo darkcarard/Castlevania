@@ -123,13 +123,20 @@ public class PlayerControl : MonoBehaviour {
 		if(other.tag == "Bow"){
 			if(ammo <= maxAmmo){
 				ammo++;
+				Destroy (other.gameObject);
 			}
 		}else if(other.tag == "Hearth"){
 			if(life <= maxLife){
 				life++;
+				Destroy (other.gameObject);
+			}
+		}else if(other.tag == "Enemy"){
+			if (!transform.FindChild ("Lash").GetComponent<BoxCollider2D> ().enabled) {
+				if (life > 0) {
+					life--;
+				}
 			}
 		}
-		Destroy (other.gameObject);
 		SetPuntaje ();
 	}
 
