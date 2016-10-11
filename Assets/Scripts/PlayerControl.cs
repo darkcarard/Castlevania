@@ -7,33 +7,33 @@ public class PlayerControl : MonoBehaviour {
 	private bool facingRight = true;
 	private bool jump = false;
 	private bool lash = false;
+	[SerializeField]
+	private bool airControl=false;
+	private bool isGrounded;
 
 	[SerializeField]
 	private float maxSpeed = 5f;
+	[SerializeField]
+	private float groundRadius;
 	[SerializeField]
 	private float jumpForce;
 
 	private Animator myAnimator;
 	private Rigidbody2D myRigidbody;
-
 	[SerializeField]
 	private Transform[] groundPoints;
 	[SerializeField]
-	private float groundRadius;
-	[SerializeField]
 	private LayerMask whatIsGround;
-	private bool isGrounded;
+
 	[SerializeField]
-	private bool airControl=false;
+	private Text lifeText;
+	[SerializeField]
+	private Text ammoText;
 
 	private int maxLife = 20;
 	private int life = 5;
 	private int maxAmmo = 10;
 	private int ammo = 0;
-	[SerializeField]
-	private Text lifeText;
-	[SerializeField]
-	private Text ammoText;
 
 	void Start () {
 		myAnimator = GetComponent<Animator> ();
