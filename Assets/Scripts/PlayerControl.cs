@@ -8,7 +8,6 @@ public class PlayerControl : MonoBehaviour {
 	private bool jump = false;
 	private bool lash = false;
 	[SerializeField]
-	private bool airControl=false;
 	private bool isGrounded;
 
 	[SerializeField]
