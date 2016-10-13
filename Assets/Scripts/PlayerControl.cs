@@ -17,6 +17,10 @@ public class PlayerControl : MonoBehaviour {
 	private float groundRadius;
 	[SerializeField]
 	private float jumpForce;
+	[SerializeField]
+	private float xMin;
+	[SerializeField]
+	private float xMax;
 
 	private Animator myAnimator;
 	private Rigidbody2D myRigidbody;
@@ -34,6 +38,11 @@ public class PlayerControl : MonoBehaviour {
 	private int life = 5;
 	private int maxAmmo = 10;
 	private int ammo = 0;
+	[SerializeField]
+	private GameObject[] enemies;
+	[SerializeField]
+	private int maxEnemies;
+
 
 	void Start () {
 		myAnimator = GetComponent<Animator> ();
@@ -43,6 +52,7 @@ public class PlayerControl : MonoBehaviour {
 
 	void Update () {
 		HandleInput ();
+		SpawnEnemy ();
 	}
 
 	void FixedUpdate(){
@@ -64,14 +74,19 @@ public class PlayerControl : MonoBehaviour {
 	}
 
 	void HandleMovement(float horizontal){
-		if (!myAnimator.GetCurrentAnimatorStateInfo (0).IsTag ("Lash") && (isGrounded || airControl)) {
+		if (isGrounded && jump) {
+			Jump ();
+			isGrounded = false;
+		}
+		if (!myAnimator.GetCurrentAnimatorStateInfo (0).IsTag ("Lash") && isGrounded) {
 			myAnimator.SetFloat ("speed", Mathf.Abs (horizontal));
 			myRigidbody.velocity = new Vector2 (horizontal * maxSpeed, myRigidbody.velocity.y);
+			Vector2 position;
+			position.x = Mathf.Clamp (myRigidbody.position.x, xMin, xMax);
+			position.y = myRigidbody.position.y;
+			myRigidbody.position = position;
 		} 
-		if (isGrounded && jump) {
-			isGrounded = false;
-			Jump ();
-		}
+
 	}
 
 	void HandleAttacks(){
@@ -103,6 +118,7 @@ public class PlayerControl : MonoBehaviour {
 	void ResetValues(){
 		lash = false;
 		jump = false;
+
 	}
 
 	private bool IsGrounded(){
@@ -143,5 +159,9 @@ public class PlayerControl : MonoBehaviour {
 	void SetPuntaje(){
 		lifeText.text = "Vida: " + life.ToString ();
 		ammoText.text = "Munición: " + ammo.ToString ();
+	}
+
+	void SpawnEnemy(){
+			//Random.Range ();
 	}
 }
