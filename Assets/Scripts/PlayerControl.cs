@@ -90,8 +90,7 @@ public class PlayerControl : MonoBehaviour {
 
 	void HandleAttacks(){
 		if (lash && !myAnimator.GetCurrentAnimatorStateInfo (0).IsTag ("Lash")){
-			myRigidbody.velocity = Vector2.zero;
-			myAnimator.SetTrigger ("lash");
+			Lash ();
 		}
 	}
 
