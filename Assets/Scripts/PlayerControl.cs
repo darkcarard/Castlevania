@@ -112,7 +112,7 @@ public class PlayerControl : MonoBehaviour {
 	}
 
 	void Jump(){
-		//myAnimator.SetTrigger ("jump");
+		myAnimator.SetTrigger ("jump");
 		myRigidbody.AddForce (new Vector2(0f,jumpForce));
 	}
 
@@ -128,6 +128,7 @@ public class PlayerControl : MonoBehaviour {
 				Collider2D[] colliders = Physics2D.OverlapCircleAll (point.position, groundRadius, whatIsGround);
 				for (int i = 0; i < colliders.Length; i++) {
 					if(colliders[i].gameObject != gameObject) {
+						myAnimator.ResetTrigger ("jump");
 						return true;
 					}
 				}
@@ -137,16 +138,18 @@ public class PlayerControl : MonoBehaviour {
 	}
 
 	void OnTriggerEnter2D(Collider2D other){
-		if(other.tag == "Bow"){
-			if(ammo <= maxAmmo){
+		if (other.tag == "Bow") {
+			if (ammo <= maxAmmo) {
 				ammo++;
 				Destroy (other.gameObject);
 			}
-		}else if(other.tag == "Hearth"){
-			if(life <= maxLife){
+		} else if (other.tag == "Hearth") {
+			if (life <= maxLife) {
 				life++;
 				Destroy (other.gameObject);
 			}
+		}else if (other.tag == "Door"){
+			//Application.LoadLevel(1); 
 		}else if(other.tag == "Enemy"){
 			if (!transform.FindChild ("Lash").GetComponent<BoxCollider2D> ().enabled) {
 				if (life > 0) {
