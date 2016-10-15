@@ -64,16 +64,19 @@ public class PlayerControl : MonoBehaviour {
 	}
 
 	void HandleInput(){
-		if (Input.GetKeyDown(KeyCode.Space)){
+		if (Input.GetKeyDown(KeyCode.X)){
 			jump = true;
 		}
-		if (Input.GetButton ("Fire1")) {
+		if (Input.GetKeyDown (KeyCode.Z)) {
 			lash = true;
 		}
 	}
 
 	void HandleMovement(float horizontal){
 		if (isGrounded && jump) {
+			if (myAnimator.GetCurrentAnimatorStateInfo (0).IsTag ("Run")){
+				myAnimator.SetFloat ("speed", 0f);
+			}
 			Jump ();
 			isGrounded = false;
 		}

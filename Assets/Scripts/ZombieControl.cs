@@ -15,10 +15,7 @@ public class ZombieControl : MonoBehaviour {
 	private float bordeDerecho;
 	[SerializeField]
 	private GameObject[] loot;
-	[SerializeField]
-	private float xMin;
-	[SerializeField]
-	private float xMax;
+
 
 	private bool isQuitting;
 
@@ -27,7 +24,7 @@ public class ZombieControl : MonoBehaviour {
 	}
 
 	void Update(){
-		if (myRigidbody.position.x <= xMin || myRigidbody.position.x >= xMax) {
+		if (myRigidbody.position.x <= GameConfig.X_MIN || myRigidbody.position.x >= GameConfig.X_MAX) {
 			facingLeft = false;
 		}
 		if (!facingLeft) {
@@ -42,7 +39,7 @@ public class ZombieControl : MonoBehaviour {
 	void HandleMovement(){
 		myRigidbody.velocity = new Vector2 (maxSpeed, myRigidbody.velocity.y);
 		Vector2 position;
-		position.x = Mathf.Clamp (myRigidbody.position.x, xMin, xMax);
+		position.x = Mathf.Clamp (myRigidbody.position.x, GameConfig.X_MIN, GameConfig.X_MAX);
 		position.y = myRigidbody.position.y;
 		myRigidbody.position = position;
 	}
@@ -57,7 +54,7 @@ public class ZombieControl : MonoBehaviour {
 
 	void OnDestroy(){
 		if (!isQuitting){
-			Instantiate (GetLoot (),new Vector3(transform.position.x,-0.25f,0f),transform.rotation);
+			Instantiate (GetLoot (),new Vector3(transform.position.x,GameConfig.Y_MIN,0f),transform.rotation);
 		}
 	}
 
