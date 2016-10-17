@@ -9,6 +9,10 @@ public class PlayerControl : MonoBehaviour {
 	private bool lash = false;
 	private bool died = false;
 	[SerializeField]
+	private bool hit = false;
+	[SerializeField]
+	private bool invulnerate = false;
+	[SerializeField]
 	private bool isGrounded;
 
 	[SerializeField]
@@ -78,14 +82,14 @@ public class PlayerControl : MonoBehaviour {
 	}
 
 	void HandleMovement(float horizontal){
-		if (isGrounded && jump) {
+		if (isGrounded && jump && !hit) {
 			if (myAnimator.GetCurrentAnimatorStateInfo (0).IsTag ("Run")) {
 				myAnimator.SetFloat ("speed", 0f);
 			}
 			Jump ();
 			isGrounded = false;
 		}
-		if (!myAnimator.GetCurrentAnimatorStateInfo (0).IsTag ("Lash") && isGrounded) {
+		if (!myAnimator.GetCurrentAnimatorStateInfo (0).IsTag ("Lash") && isGrounded && !hit) {
 			myAnimator.SetFloat ("speed", Mathf.Abs (horizontal));
 			myRigidbody.velocity = new Vector2 (horizontal * maxSpeed, myRigidbody.velocity.y);
 			Vector2 position;
@@ -156,7 +160,10 @@ public class PlayerControl : MonoBehaviour {
 		}else if(other.tag == "Enemy"){
 			if (!transform.FindChild ("Lash").GetComponent<BoxCollider2D> ().enabled) {
 				if (life > 0) {
-					life--;
+					myAnimator.SetTrigger ("hit");
+					if (!invulnerate) {
+						life--;
+					}
 					Die ();
 				}
 			}
@@ -171,6 +178,7 @@ public class PlayerControl : MonoBehaviour {
 
 	void Die(){
 		if (life == 0){
+			myAnimator.ResetTrigger ("hit");
 			myAnimator.SetTrigger ("died");
 			died = true;
 		}
