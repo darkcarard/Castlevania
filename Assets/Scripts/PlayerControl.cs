@@ -7,6 +7,7 @@ public class PlayerControl : MonoBehaviour {
 	private bool facingRight = true;
 	private bool jump = false;
 	private bool lash = false;
+	private bool died = false;
 	[SerializeField]
 	private bool isGrounded;
 
@@ -20,6 +21,8 @@ public class PlayerControl : MonoBehaviour {
 	private float xMin;
 	[SerializeField]
 	private float xMax;
+	private float restartDelay = 5f;
+	private float restartTimer;
 
 	private Animator myAnimator;
 	private Rigidbody2D myRigidbody;
@@ -51,16 +54,18 @@ public class PlayerControl : MonoBehaviour {
 
 	void Update () {
 		HandleInput ();
-		SpawnEnemy ();
+		GameOver ();
 	}
 
 	void FixedUpdate(){
-		float horizontal = Input.GetAxis ("Horizontal");
-		isGrounded = IsGrounded ();
-		HandleMovement (horizontal);
-		Flip (horizontal);
-		HandleAttacks ();
-		ResetValues ();
+		if (!died) {
+			float horizontal = Input.GetAxis ("Horizontal");
+			isGrounded = IsGrounded ();
+			HandleMovement (horizontal);
+			Flip (horizontal);
+			HandleAttacks ();
+			ResetValues ();
+		}
 	}
 
 	void HandleInput(){
@@ -74,7 +79,7 @@ public class PlayerControl : MonoBehaviour {
 
 	void HandleMovement(float horizontal){
 		if (isGrounded && jump) {
-			if (myAnimator.GetCurrentAnimatorStateInfo (0).IsTag ("Run")){
+			if (myAnimator.GetCurrentAnimatorStateInfo (0).IsTag ("Run")) {
 				myAnimator.SetFloat ("speed", 0f);
 			}
 			Jump ();
@@ -88,7 +93,6 @@ public class PlayerControl : MonoBehaviour {
 			position.y = myRigidbody.position.y;
 			myRigidbody.position = position;
 		} 
-
 	}
 
 	void HandleAttacks(){
@@ -119,7 +123,6 @@ public class PlayerControl : MonoBehaviour {
 	void ResetValues(){
 		lash = false;
 		jump = false;
-
 	}
 
 	private bool IsGrounded(){
@@ -154,6 +157,7 @@ public class PlayerControl : MonoBehaviour {
 			if (!transform.FindChild ("Lash").GetComponent<BoxCollider2D> ().enabled) {
 				if (life > 0) {
 					life--;
+					Die ();
 				}
 			}
 		}
@@ -165,7 +169,28 @@ public class PlayerControl : MonoBehaviour {
 		ammoText.text = "Munición: " + ammo.ToString ();
 	}
 
-	void SpawnEnemy(){
-			//Random.Range ();
+	void Die(){
+		if (life == 0){
+			myAnimator.SetTrigger ("died");
+			died = true;
+		}
 	}
+
+	void GameOver(){
+		if (life == 0) {
+			restartTimer += Time.deltaTime;
+
+			if (restartTimer >= restartDelay) {
+				DeleteAll ();
+				Application.LoadLevel (Application.loadedLevel);
+			}
+		}
+	}
+
+	public void DeleteAll(){
+		foreach (GameObject o in Object.FindObjectsOfType<GameObject>()) {
+			Destroy(o);
+		}
+	}
+		
 }
