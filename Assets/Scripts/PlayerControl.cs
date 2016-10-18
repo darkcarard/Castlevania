@@ -25,8 +25,6 @@ public class PlayerControl : MonoBehaviour {
 	private float xMin;
 	[SerializeField]
 	private float xMax;
-	private float restartDelay = 5f;
-	private float restartTimer;
 
 	private Animator myAnimator;
 	private Rigidbody2D myRigidbody;
@@ -34,6 +32,7 @@ public class PlayerControl : MonoBehaviour {
 	private Transform[] groundPoints;
 	[SerializeField]
 	private LayerMask whatIsGround;
+	private GameControl myGameControl;
 
 	[SerializeField]
 	private Text lifeText;
@@ -41,7 +40,7 @@ public class PlayerControl : MonoBehaviour {
 	private Text ammoText;
 
 	private int maxLife = 20;
-	private int life = 5;
+	private int life = 10;
 	private int maxAmmo = 10;
 	private int ammo = 0;
 	[SerializeField]
@@ -53,12 +52,16 @@ public class PlayerControl : MonoBehaviour {
 	void Start () {
 		myAnimator = GetComponent<Animator> ();
 		myRigidbody = GetComponent<Rigidbody2D> ();
-		SetPuntaje ();
+		GameObject myGameControlObject = GameObject.FindWithTag ("GameControl");
+		if (myGameControlObject != null){
+			myGameControl = myGameControlObject.GetComponent<GameControl> ();
+		}else{
+			Debug.Log ("No se encontró el script 'GameControl'");
+		}
 	}
 
 	void Update () {
 		HandleInput ();
-		GameOver ();
 	}
 
 	void FixedUpdate(){
@@ -148,11 +151,13 @@ public class PlayerControl : MonoBehaviour {
 		if (other.tag == "Bow") {
 			if (ammo <= maxAmmo) {
 				ammo++;
+				myGameControl.SetAmmo (1);
 				Destroy (other.gameObject);
 			}
 		} else if (other.tag == "Hearth") {
 			if (life <= maxLife) {
 				life++;
+				myGameControl.SetLife (1);
 				Destroy (other.gameObject);
 			}
 		}else if (other.tag == "Door"){
@@ -163,17 +168,13 @@ public class PlayerControl : MonoBehaviour {
 					myAnimator.SetTrigger ("hit");
 					if (!invulnerate) {
 						life--;
+						myGameControl.SetLife (-1);
 					}
 					Die ();
 				}
 			}
 		}
-		SetPuntaje ();
-	}
-
-	void SetPuntaje(){
-		lifeText.text = "Vida: " + life.ToString ();
-		ammoText.text = "Munición: " + ammo.ToString ();
+		//SetPuntaje ();
 	}
 
 	void Die(){
@@ -181,23 +182,6 @@ public class PlayerControl : MonoBehaviour {
 			myAnimator.ResetTrigger ("hit");
 			myAnimator.SetTrigger ("died");
 			died = true;
-		}
-	}
-
-	void GameOver(){
-		if (life == 0) {
-			restartTimer += Time.deltaTime;
-
-			if (restartTimer >= restartDelay) {
-				DeleteAll ();
-				Application.LoadLevel (Application.loadedLevel);
-			}
-		}
-	}
-
-	public void DeleteAll(){
-		foreach (GameObject o in Object.FindObjectsOfType<GameObject>()) {
-			Destroy(o);
 		}
 	}
 		
