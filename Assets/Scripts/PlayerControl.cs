@@ -120,6 +120,7 @@ public class PlayerControl : MonoBehaviour {
 	void Lash(){
 		myAnimator.SetTrigger ("lash");
 		myRigidbody.velocity = Vector2.zero;
+		transform.Find ("Lash").GetComponent<AudioSource> ().Play ();
 	}
 
 	void Jump(){
