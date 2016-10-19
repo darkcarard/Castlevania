@@ -166,11 +166,11 @@ public class PlayerControl : MonoBehaviour {
 		}else if(other.tag == "Enemy"){
 			if (!transform.FindChild ("Lash").GetComponent<BoxCollider2D> ().enabled) {
 				if (life > 0) {
-					myAnimator.SetTrigger ("hit");
-					if (!invulnerate) {
+					//myAnimator.SetTrigger ("hit");
+					//if (!invulnerate) {
 						life--;
 						myGameControl.SetLife (-1);
-					}
+					//}
 					Die ();
 				}
 			}
@@ -180,7 +180,7 @@ public class PlayerControl : MonoBehaviour {
 
 	void Die(){
 		if (life == 0){
-			myAnimator.ResetTrigger ("hit");
+			//myAnimator.ResetTrigger ("hit");
 			myAnimator.SetTrigger ("died");
 			died = true;
 		}
