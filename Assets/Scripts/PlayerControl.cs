@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class PlayerControl : MonoBehaviour {
@@ -10,8 +11,8 @@ public class PlayerControl : MonoBehaviour {
 	private bool died = false;
 	[SerializeField]
 	private bool hit = false;
-	[SerializeField]
-	private bool invulnerate = false;
+	//[SerializeField]
+	//private bool invulnerate = false;
 	[SerializeField]
 	private bool isGrounded;
 
@@ -159,16 +160,19 @@ public class PlayerControl : MonoBehaviour {
 			if (life <= maxLife) {
 				life++;
 				myGameControl.SetLife (1);
-				Destroy (other.gameObject);
+				other.GetComponent<AudioSource> ().Play ();
+				Destroy (other.gameObject,0.2f);
 			}
 		}else if (other.tag == "Door"){
-			//Application.LoadLevel(1); 
+			//Application.LoadLevel(1);
+			myGameControl.DeleteAll ();
+			SceneManager.LoadScene(1);
 		}else if(other.tag == "Enemy"){
 			if (!transform.FindChild ("Lash").GetComponent<BoxCollider2D> ().enabled) {
 				if (life > 0) {
 					//myAnimator.SetTrigger ("hit");
 					//if (!invulnerate) {
-						life--;
+					life--;
 						myGameControl.SetLife (-1);
 					//}
 					Die ();
