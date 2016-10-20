@@ -29,8 +29,8 @@ public class PlayerControl : MonoBehaviour {
 
 	private Animator myAnimator;
 	private Rigidbody2D myRigidbody;
-	[SerializeField]
-	private Transform[] groundPoints;
+	//[SerializeField]
+	//private Transform[] groundPoints;
 	[SerializeField]
 	private LayerMask whatIsGround;
 	private GameControl myGameControl;
@@ -136,7 +136,7 @@ public class PlayerControl : MonoBehaviour {
 
 	private bool IsGrounded(){
 		if (myRigidbody.velocity.y <= 0) {
-			foreach (Transform point in groundPoints) {
+			/*foreach (Transform point in groundPoints) {
 				Collider2D[] colliders = Physics2D.OverlapCircleAll (point.position, groundRadius, whatIsGround);
 				for (int i = 0; i < colliders.Length; i++) {
 					if(colliders[i].gameObject != gameObject) {
@@ -144,7 +144,9 @@ public class PlayerControl : MonoBehaviour {
 						return true;
 					}
 				}
-			}
+			}*/
+			myAnimator.ResetTrigger ("jump");
+			return true;
 		}
 		return false;
 	}
@@ -154,14 +156,17 @@ public class PlayerControl : MonoBehaviour {
 			if (ammo <= maxAmmo) {
 				ammo++;
 				myGameControl.SetAmmo (1);
-				Destroy (other.gameObject);
+				LootPlaySound (other.gameObject);
+				other.transform.GetComponent<SpriteRenderer> ().enabled = false;
+				Destroy (other.gameObject,0.8f);
 			}
 		} else if (other.tag == "Hearth") {
 			if (life <= maxLife) {
 				life++;
 				myGameControl.SetLife (1);
-				other.GetComponent<AudioSource> ().Play ();
-				Destroy (other.gameObject,0.2f);
+				LootPlaySound (other.gameObject);
+				other.transform.GetComponent<SpriteRenderer> ().enabled = false;
+				Destroy (other.gameObject,0.8f);
 			}
 		}else if (other.tag == "Door"){
 			//Application.LoadLevel(1);
@@ -188,6 +193,10 @@ public class PlayerControl : MonoBehaviour {
 			myAnimator.SetTrigger ("died");
 			died = true;
 		}
+	}
+
+	void LootPlaySound(GameObject item){
+		item.GetComponent<AudioSource> ().Play ();
 	}
 		
 }
