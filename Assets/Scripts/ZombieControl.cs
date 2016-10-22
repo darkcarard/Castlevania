@@ -45,11 +45,13 @@ public class ZombieControl : MonoBehaviour {
 	}
 
 	void Flip(){
-		facingLeft = !facingLeft;
-		Vector3 myScale = transform.localScale;
-		myScale.x *= -1;
-		transform.localScale = myScale;
-		maxSpeed *= -1;
+
+		if (!facingLeft) {
+			myRigidbody.transform.GetComponent<SpriteRenderer> ().flipX = true;
+		}else{
+			myRigidbody.transform.GetComponent<SpriteRenderer> ().flipX = false;
+		}
+
 	}
 
 	void OnDestroy(){

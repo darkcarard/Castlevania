@@ -6,48 +6,35 @@ using System.Collections;
 public class PlayerControl : MonoBehaviour {
 
 	private bool facingRight = true;
-	private bool jump = false;
-	private bool lash = false;
 	private bool died = false;
-	[SerializeField]
-	private bool hit = false;
+	[SerializeField] private bool hit = false;
 	//[SerializeField]
 	//private bool invulnerate = false;
-	[SerializeField]
-	private bool isGrounded;
+	[SerializeField] private bool isGrounded = true;
 
-	[SerializeField]
-	private float maxSpeed = 5f;
-	[SerializeField]
-	private float groundRadius;
-	[SerializeField]
-	private float jumpForce;
-	[SerializeField]
-	private float xMin;
-	[SerializeField]
-	private float xMax;
+	[SerializeField] private float maxSpeed = 5f;
+	private float groundRadius = 0.2f;
+	[SerializeField] private float jumpForce;
+	[SerializeField] private float xMin;
+	[SerializeField] private float xMax;
+	[SerializeField] private float xHitForce;
+	[SerializeField] private float yHitForce;
 
 	private Animator myAnimator;
 	private Rigidbody2D myRigidbody;
-	//[SerializeField]
-	//private Transform[] groundPoints;
-	[SerializeField]
-	private LayerMask whatIsGround;
+	[SerializeField] private Transform[] groundPoints;
+	[SerializeField] private LayerMask whatIsGround;
 	private GameControl myGameControl;
 
-	[SerializeField]
-	private Text lifeText;
-	[SerializeField]
-	private Text ammoText;
+	[SerializeField] private Text lifeText;
+	[SerializeField] private Text ammoText;
 
 	private int maxLife = 20;
 	private int life = 10;
 	private int maxAmmo = 10;
 	private int ammo = 0;
-	[SerializeField]
-	private GameObject[] enemies;
-	[SerializeField]
-	private int maxEnemies;
+	[SerializeField] private GameObject[] enemies;
+	[SerializeField] private int maxEnemies;
 
 
 	void Start () {
@@ -62,91 +49,67 @@ public class PlayerControl : MonoBehaviour {
 	}
 
 	void Update () {
-		HandleInput ();
+		if (isGrounded && Input.GetKeyDown(KeyCode.X)){
+			myAnimator.SetBool ("ground",false);
+			myRigidbody.AddForce (new Vector2(0f,jumpForce));	
+		}
+		if (Input.GetKeyDown (KeyCode.Z)) {
+			myAnimator.SetTrigger ("lash");
+			myRigidbody.velocity = Vector2.zero;
+			transform.Find ("Lash").GetComponent<AudioSource> ().Play ();
+		}
 	}
 
 	void FixedUpdate(){
+		isGrounded = IsGrounded ();
+		myAnimator.SetBool ("ground", isGrounded);
+		myAnimator.SetFloat ("vSpeed",myRigidbody.velocity.y);
+
 		if (!died) {
-			float horizontal = Input.GetAxis ("Horizontal");
-			isGrounded = IsGrounded ();
-			HandleMovement (horizontal);
-			Flip (horizontal);
-			HandleAttacks ();
-			ResetValues ();
-		}
-	}
-
-	void HandleInput(){
-		if (Input.GetKeyDown(KeyCode.X)){
-			jump = true;
-		}
-		if (Input.GetKeyDown (KeyCode.Z)) {
-			lash = true;
-		}
-	}
-
-	void HandleMovement(float horizontal){
-		if (isGrounded && jump && !hit) {
-			if (myAnimator.GetCurrentAnimatorStateInfo (0).IsTag ("Run")) {
-				myAnimator.SetFloat ("speed", 0f);
+			float move = Input.GetAxis ("Horizontal");
+			HandleMovement (move);
+			if (move > 0 && !facingRight){
+				Flip ();
+			}else if(move < 0 && facingRight){
+				Flip ();
 			}
-			Jump ();
-			isGrounded = false;
 		}
-		if (!myAnimator.GetCurrentAnimatorStateInfo (0).IsTag ("Lash") && isGrounded && !hit) {
-			myAnimator.SetFloat ("speed", Mathf.Abs (horizontal));
-			myRigidbody.velocity = new Vector2 (horizontal * maxSpeed, myRigidbody.velocity.y);
+	}
+
+	void HandleMovement(float move){
+			myAnimator.SetFloat ("speed", Mathf.Abs (move));
+			myRigidbody.velocity = new Vector2 (move * maxSpeed, myRigidbody.velocity.y);
 			Vector2 position;
 			position.x = Mathf.Clamp (myRigidbody.position.x, xMin, xMax);
 			position.y = myRigidbody.position.y;
 			myRigidbody.position = position;
-		} 
 	}
 
-	void HandleAttacks(){
-		if (lash && !myAnimator.GetCurrentAnimatorStateInfo (0).IsTag ("Lash")){
-			Lash ();
-		}
+	void Flip(){
+		facingRight = !facingRight;
+		Vector3 theScale = transform.localScale;
+		theScale.x *= -1;
+		transform.localScale = theScale;
 	}
 
-	void Flip(float horizontal){
-		if (horizontal > 0 && !facingRight || horizontal < 0 && facingRight) {
-			facingRight = !facingRight;
-			Vector3 myScale = transform.localScale;
-			myScale.x *= -1;
-			transform.localScale = myScale;
-		}
-	}
-
-	void Lash(){
-		myAnimator.SetTrigger ("lash");
-		myRigidbody.velocity = Vector2.zero;
-		transform.Find ("Lash").GetComponent<AudioSource> ().Play ();
-	}
-
-	void Jump(){
-		myAnimator.SetTrigger ("jump");
-		myRigidbody.AddForce (new Vector2(0f,jumpForce));
-	}
-
-	void ResetValues(){
-		lash = false;
-		jump = false;
+	void Hit(){
+		Vector2 force = myRigidbody.velocity;
+		//if (facingRight){
+			//force *= -1;
+		//}
+		myRigidbody.AddForce (force * Time.deltaTime);
+		//myRigidbody.AddForce (transform.right * xHitForce);
 	}
 
 	private bool IsGrounded(){
-		if (myRigidbody.velocity.y <= 0) {
-			/*foreach (Transform point in groundPoints) {
-				Collider2D[] colliders = Physics2D.OverlapCircleAll (point.position, groundRadius, whatIsGround);
-				for (int i = 0; i < colliders.Length; i++) {
-					if(colliders[i].gameObject != gameObject) {
-						myAnimator.ResetTrigger ("jump");
-						return true;
-					}
+		foreach (Transform point in groundPoints) {
+			Collider2D[] colliders = Physics2D.OverlapCircleAll (point.position, groundRadius, whatIsGround);
+			for (int i = 0; i < colliders.Length; i++) {
+				if(colliders[i].gameObject != gameObject) {
+					myAnimator.ResetTrigger ("jump");
+					return true;
 				}
-			}*/
-			myAnimator.ResetTrigger ("jump");
-			return true;
+			}
 		}
 		return false;
 	}
@@ -180,11 +143,11 @@ public class PlayerControl : MonoBehaviour {
 					life--;
 						myGameControl.SetLife (-1);
 					//}
+					Hit ();
 					Die ();
 				}
 			}
 		}
-		//SetPuntaje ();
 	}
 
 	void Die(){
