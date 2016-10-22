@@ -10,11 +10,8 @@ public class ZombieControl : MonoBehaviour {
 	[SerializeField]
 	private bool facingLeft = true;
 	[SerializeField]
-	private float bordeIzquierdo;
-	[SerializeField]
-	private float bordeDerecho;
-	[SerializeField]
 	private GameObject[] loot;
+	private bool flip;
 
 
 	private bool isQuitting;
@@ -24,12 +21,7 @@ public class ZombieControl : MonoBehaviour {
 	}
 
 	void Update(){
-		if (myRigidbody.position.x <= GameConfig.X_MIN || myRigidbody.position.x >= GameConfig.X_MAX) {
-			facingLeft = false;
-		}
-		if (!facingLeft) {
-			Flip ();
-		}
+		flip = myRigidbody.transform.GetComponent<SpriteRenderer> ().flipX;
 	}
 
 	void FixedUpdate(){
@@ -42,16 +34,19 @@ public class ZombieControl : MonoBehaviour {
 		position.x = Mathf.Clamp (myRigidbody.position.x, GameConfig.X_MIN, GameConfig.X_MAX);
 		position.y = myRigidbody.position.y;
 		myRigidbody.position = position;
+		print (myRigidbody.velocity.x);
+		if ((myRigidbody.position.x <= GameConfig.X_MIN || myRigidbody.position.x >= GameConfig.X_MAX) && !flip){
+			Flip ();
+			maxSpeed *= -1;
+		}
 	}
 
 	void Flip(){
-
-		if (!facingLeft) {
+		if (myRigidbody.velocity.x < 0 && !flip) {
 			myRigidbody.transform.GetComponent<SpriteRenderer> ().flipX = true;
-		}else{
+		}else if (myRigidbody.velocity.x > 0 && !flip){
 			myRigidbody.transform.GetComponent<SpriteRenderer> ().flipX = false;
 		}
-
 	}
 
 	void OnDestroy(){

@@ -7,7 +7,7 @@ public class PlayerControl : MonoBehaviour {
 
 	private bool facingRight = true;
 	private bool died = false;
-	[SerializeField] private bool hit = false;
+	//[SerializeField] private bool hit = false;
 	//[SerializeField]
 	//private bool invulnerate = false;
 	[SerializeField] private bool isGrounded = true;
@@ -53,7 +53,7 @@ public class PlayerControl : MonoBehaviour {
 			myAnimator.SetBool ("ground",false);
 			myRigidbody.AddForce (new Vector2(0f,jumpForce));	
 		}
-		if (Input.GetKeyDown (KeyCode.Z)) {
+		if (isGrounded && Input.GetKeyDown (KeyCode.Z)) {
 			myAnimator.SetTrigger ("lash");
 			myRigidbody.velocity = Vector2.zero;
 			transform.Find ("Lash").GetComponent<AudioSource> ().Play ();
@@ -92,13 +92,12 @@ public class PlayerControl : MonoBehaviour {
 		transform.localScale = theScale;
 	}
 
-	void Hit(){
-		Vector2 force = myRigidbody.velocity;
-		//if (facingRight){
-			//force *= -1;
-		//}
-		myRigidbody.AddForce (force * Time.deltaTime);
-		//myRigidbody.AddForce (transform.right * xHitForce);
+	void Hit(Collision2D other){
+		float force = 30;
+		Vector3 dir =  new Vector3(other.contacts[0].point.x,other.contacts[0].point.y,0f) - transform.position;
+		dir = -dir.normalized;
+		myRigidbody.AddForce(dir*force);
+
 	}
 
 	private bool IsGrounded(){
@@ -138,12 +137,11 @@ public class PlayerControl : MonoBehaviour {
 		}else if(other.tag == "Enemy"){
 			if (!transform.FindChild ("Lash").GetComponent<BoxCollider2D> ().enabled) {
 				if (life > 0) {
-					//myAnimator.SetTrigger ("hit");
-					//if (!invulnerate) {
 					life--;
-						myGameControl.SetLife (-1);
-					//}
-					Hit ();
+					myGameControl.SetLife (-1);
+					Vector3 direction = new Vector3 (other.transform.position.x,0.1f,0f);
+					direction = -direction.normalized;
+					myRigidbody.AddForce (direction * 400);
 					Die ();
 				}
 			}
