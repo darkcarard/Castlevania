@@ -5,7 +5,12 @@ public class ZombieControl : MonoBehaviour {
 
 	private Rigidbody2D myRigidbody;
 	private Animator myAnimator;
-	[SerializeField] private float maxSpeed = -0.1f;
+	[SerializeField]
+	private float maxSpeed = -0.1f;
+	[SerializeField]
+	private bool facingLeft = true;
+	[SerializeField]
+	private GameObject[] loot;
 	private bool flip;
 
 	void Start(){
@@ -14,7 +19,6 @@ public class ZombieControl : MonoBehaviour {
 
 	void Update(){
 		flip = myRigidbody.transform.GetComponent<SpriteRenderer> ().flipX;
-
 		if (myRigidbody.position.x <= GameConfig.X_MIN || myRigidbody.position.x >= GameConfig.X_MAX) {
 			Flip ();
 			maxSpeed *= -1;
@@ -31,16 +35,19 @@ public class ZombieControl : MonoBehaviour {
 		position.x = Mathf.Clamp (myRigidbody.position.x, GameConfig.X_MIN, GameConfig.X_MAX);
 		position.y = myRigidbody.position.y;
 		myRigidbody.position = position;
+		print (myRigidbody.velocity.x);
+		if ((myRigidbody.position.x <= GameConfig.X_MIN || myRigidbody.position.x >= GameConfig.X_MAX) && !flip){
+			Flip ();
+			maxSpeed *= -1;
+		}
 	}
 
 	void Flip(){
-
 		if (myRigidbody.velocity.x < 0 && !flip) {
 			myRigidbody.transform.GetComponent<SpriteRenderer> ().flipX = true;
 
 		}else if (myRigidbody.velocity.x > 0 && flip){
 			myRigidbody.transform.GetComponent<SpriteRenderer> ().flipX = false;
-
 		}
 
 	}

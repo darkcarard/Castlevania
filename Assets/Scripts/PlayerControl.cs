@@ -32,7 +32,7 @@ public class PlayerControl : MonoBehaviour {
 			myAnimator.SetBool ("ground",false);
 			myRigidbody.AddForce (new Vector2(0f,jumpForce));	
 		}
-		if (Input.GetKeyDown (KeyCode.Z)) {
+		if (isGrounded && Input.GetKeyDown (KeyCode.Z)) {
 			myAnimator.SetTrigger ("lash");
 			myRigidbody.velocity = Vector2.zero;
 		}
@@ -72,7 +72,6 @@ public class PlayerControl : MonoBehaviour {
 	}
 
 	void OnTriggerEnter2D(Collider2D other){
-
 		if (other.tag == "Door"){
 			myGameControl.DeleteAll ();
 			SceneManager.LoadScene(1);
