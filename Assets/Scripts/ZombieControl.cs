@@ -5,30 +5,19 @@ public class ZombieControl : MonoBehaviour {
 
 	private Rigidbody2D myRigidbody;
 	private Animator myAnimator;
-	[SerializeField]
-	private float maxSpeed = -0.1f;
-	[SerializeField]
-	private bool facingLeft = true;
-	[SerializeField]
-	private float bordeIzquierdo;
-	[SerializeField]
-	private float bordeDerecho;
-	[SerializeField]
-	private GameObject[] loot;
-
-
-	private bool isQuitting;
+	[SerializeField] private float maxSpeed = -0.1f;
+	private bool flip;
 
 	void Start(){
 		myRigidbody = GetComponent <Rigidbody2D> ();
 	}
 
 	void Update(){
+		flip = myRigidbody.transform.GetComponent<SpriteRenderer> ().flipX;
+
 		if (myRigidbody.position.x <= GameConfig.X_MIN || myRigidbody.position.x >= GameConfig.X_MAX) {
-			facingLeft = false;
-		}
-		if (!facingLeft) {
 			Flip ();
+			maxSpeed *= -1;
 		}
 	}
 
@@ -46,26 +35,13 @@ public class ZombieControl : MonoBehaviour {
 
 	void Flip(){
 
-		if (!facingLeft) {
+		if (myRigidbody.velocity.x < 0 && !flip) {
 			myRigidbody.transform.GetComponent<SpriteRenderer> ().flipX = true;
-		}else{
+
+		}else if (myRigidbody.velocity.x > 0 && flip){
 			myRigidbody.transform.GetComponent<SpriteRenderer> ().flipX = false;
+
 		}
 
-	}
-
-	void OnDestroy(){
-		if (!isQuitting){
-			Instantiate (GetLoot (),new Vector3(transform.position.x,GameConfig.Y_MIN,0f),transform.rotation);
-		}
-	}
-
-	GameObject GetLoot(){
-		int index = Random.Range (0, loot.Length);
-		return loot [index];
-	}
-
-	void OnApplicationQuit(){
-		isQuitting = true;
 	}
 }

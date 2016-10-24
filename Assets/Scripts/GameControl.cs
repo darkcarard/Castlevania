@@ -6,27 +6,20 @@ using System.Collections;
 
 public class GameControl : MonoBehaviour {
 
-	[SerializeField]
-	private GameObject[] enemies;
-	[SerializeField]
-	private float spawnWait;
-	[SerializeField]
-	private float waveWait;
-	[SerializeField]
-	private float initWait;
-	[SerializeField]
-	private Text scoreText;
+	[SerializeField] private GameObject[] enemies;
+	[SerializeField] private float spawnWait;
+	[SerializeField] private float waveWait;
+	[SerializeField] private float initWait;
+	[SerializeField] private Text scoreText;
 	private int score;
-	[SerializeField]
-	private Text lifeText;
+	[SerializeField] private Text lifeText;
 	private int life;
-	[SerializeField]
-	private Text ammoText;
+	[SerializeField] private Text ammoText;
 	private int ammo;
-	[SerializeField]
-	private Text gameOverText;
+	[SerializeField] private Text gameOverText;
 	private float restartDelay = 5f;
 	private float restartTimer;
+	private bool died;
 
 	void Start (){
 		StartCoroutine (SpawnWaves ());
@@ -39,6 +32,7 @@ public class GameControl : MonoBehaviour {
 	}
 
 	void Update(){
+		Pause ();
 		GameOver ();
 	}
 
@@ -71,6 +65,10 @@ public class GameControl : MonoBehaviour {
 		UpdateLife ();
 	}
 
+	public int GetLife(){
+		return this.life;
+	}
+
 	void UpdateLife(){
 		lifeText.text = "Vida: " + life;
 	}
@@ -80,17 +78,33 @@ public class GameControl : MonoBehaviour {
 		UpdateAmmo ();
 	}
 
+	public int GetAmmo(){
+		return this.ammo;
+	}
+
 	void UpdateAmmo(){
 		ammoText.text = "Munición: " + ammo;
 	}
 
+	void Pause(){
+		if (Input.GetKeyDown(KeyCode.P))
+		{
+			if (Time.timeScale == 1) {
+				GetComponent<AudioSource> ().Stop ();
+				Time.timeScale = 0;
+			} else {
+				GetComponent<AudioSource> ().Play ();
+				Time.timeScale = 1;
+			}
+		}
+	}
+
 	void GameOver(){
 		if (life == 0) {
-			gameOverText.text = "GAME OVER";
+			gameOverText.text = "GAME OVER!";
 			restartTimer += Time.deltaTime;
 			if (restartTimer >= restartDelay) {
 				DeleteAll ();
-				//Application.LoadLevel (Application.loadedLevel);
 				SceneManager.LoadScene (SceneManager.GetActiveScene ().name);
 			}
 		}
@@ -100,5 +114,13 @@ public class GameControl : MonoBehaviour {
 		foreach (GameObject o in Object.FindObjectsOfType<GameObject>()) {
 			Destroy(o);
 		}
+	}
+
+	public bool GetDied(){
+		return died;
+	}
+
+	public void SetDied(bool died){
+		this.died = died;
 	}
 }
