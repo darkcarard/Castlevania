@@ -13,7 +13,7 @@ public class ThrowLoot : MonoBehaviour{
 
 	void OnDestroy(){
 		if (!isQuitting){
-			Instantiate (GetLoot (),new Vector3(transform.position.x,GameConfig.Y_MIN,0f),transform.rotation);
+			Instantiate (GetLoot (),new Vector3(transform.position.x,transform.position.y,0f),transform.rotation);
 		}
 	}
 
